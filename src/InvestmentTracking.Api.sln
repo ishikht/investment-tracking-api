@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentTracking.Api", "InvestmentTracking.Api\InvestmentTracking.Api.csproj", "{6FDE16A8-7ED9-4D9B-B194-5F8CB2BBA620}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvestmentTracking.Api", "InvestmentTracking.Api\InvestmentTracking.Api.csproj", "{6FDE16A8-7ED9-4D9B-B194-5F8CB2BBA620}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentTracking.Core", "InvestmentTracking.Core\InvestmentTracking.Core.csproj", "{9F1EB477-138C-4D01-B1D1-502FB3AFAD29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentTracking.Data", "InvestmentTracking.Data\InvestmentTracking.Data.csproj", "{1000ECA5-FCD4-4434-8868-760A0F362BBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentTracking.Services", "InvestmentTracking.Services\InvestmentTracking.Services.csproj", "{AEB133CF-709B-44F9-8658-E027FD0C5CDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{6FDE16A8-7ED9-4D9B-B194-5F8CB2BBA620}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FDE16A8-7ED9-4D9B-B194-5F8CB2BBA620}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FDE16A8-7ED9-4D9B-B194-5F8CB2BBA620}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F1EB477-138C-4D01-B1D1-502FB3AFAD29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F1EB477-138C-4D01-B1D1-502FB3AFAD29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F1EB477-138C-4D01-B1D1-502FB3AFAD29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F1EB477-138C-4D01-B1D1-502FB3AFAD29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1000ECA5-FCD4-4434-8868-760A0F362BBE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1000ECA5-FCD4-4434-8868-760A0F362BBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1000ECA5-FCD4-4434-8868-760A0F362BBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1000ECA5-FCD4-4434-8868-760A0F362BBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEB133CF-709B-44F9-8658-E027FD0C5CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEB133CF-709B-44F9-8658-E027FD0C5CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEB133CF-709B-44F9-8658-E027FD0C5CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEB133CF-709B-44F9-8658-E027FD0C5CDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
