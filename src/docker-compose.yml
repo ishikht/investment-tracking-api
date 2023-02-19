@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  investment-tracking-api:
+    image: ${DOCKER_REGISTRY-}investment-tracking-api
+    build:
+      context: .
+      dockerfile: InvestmentTracking.Api/Dockerfile
