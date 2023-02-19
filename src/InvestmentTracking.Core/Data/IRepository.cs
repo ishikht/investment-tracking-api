@@ -1,5 +1,6 @@
 ﻿using InvestmentTracking.Core.Entities;
 using System.Linq.Expressions;
+
 /// <summary>
 /// Generic repository interface for database entities.
 /// </summary>
