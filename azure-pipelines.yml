@@ -30,7 +30,7 @@ stages:
         repository: $(ACR_REPOSITORY)/$(DOCKER_IMAGE)
         tags: |
           $(Build.SourceBranchName)
-          ${{ if !(contains(variables['Build.SourceBranchName'], 'alpha')) && !(contains(variables['Build.SourceBranchName'], 'beta')) }}latest${{ endif }}
+          ${{ if not(contains(variables['Build.SourceBranchName'], 'alpha')) && not(contains(variables['Build.SourceBranchName'], 'beta')) }}latest${{ endif }}
 
         Dockerfile: $(DOCKERFILE)
         buildContext: src
