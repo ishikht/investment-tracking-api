@@ -29,7 +29,8 @@ stages:
         containerRegistry: $(ACR_REGISTRY)
         repository: $(ACR_REPOSITORY)/$(DOCKER_IMAGE)
         tags: |
-          ${{ if ne(indexOf(variables['Build.SourceBranchName'], 'alpha'), -1) || ne(indexOf(variables['Build.SourceBranchName'], 'beta'), -1) }}$(Build.SourceBranchName)${{ else }}$(Build.SourceBranchName),latest${{ endif }}
+          $(Build.SourceBranchName)
+          ${{ if indexOf(variables['Build.SourceBranchName'], 'alpha') == -1 && indexOf(variables['Build.SourceBranchName'], 'beta') == -1 }}latest${{ endif }}
 
         Dockerfile: $(DOCKERFILE)
         buildContext: src
