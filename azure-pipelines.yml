@@ -4,6 +4,10 @@ trigger:
     - v*
 
 variables:
+  # Azure Container Registry information
+  ACR_REPOSITORY: investment-tracking
+  ACR_REGISTRY: exoftdocker.azurecr.io
+  ACR_NAME: exoftdocker
   # Docker image information
   DOCKER_IMAGE: investment-tracking-api
   DOCKERFILE: InvestmentTracking.Api/Dockerfile
