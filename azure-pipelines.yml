@@ -10,7 +10,7 @@ variables:
   ACR_NAME: exoftdocker
   # Docker image information
   DOCKER_IMAGE: investment-tracking-api
-  DOCKERFILE: InvestmentTracking.Api/Dockerfile
+  DOCKERFILE: src/InvestmentTracking.Api/Dockerfile
 
 stages:
 - stage: Build
