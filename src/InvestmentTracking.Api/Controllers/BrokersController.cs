@@ -1,4 +1,5 @@
-﻿using InvestmentTracking.Core.Entities;
+﻿using InvestmentTracking.Core.Dtos;
+using InvestmentTracking.Core.Entities;
 using InvestmentTracking.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,9 @@ public class BrokersController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Broker), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(BrokerDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateBroker([FromBody] Broker broker)
+    public async Task<IActionResult> CreateBroker([FromBody] BrokerDto broker)
     {
         try
         {
@@ -35,7 +36,7 @@ public class BrokersController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Broker>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<BrokerDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBrokers()
     {
         try
@@ -51,7 +52,7 @@ public class BrokersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(Broker), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BrokerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBroker(Guid id)
     {
@@ -70,17 +71,19 @@ public class BrokersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [ProducesResponseType(typeof(Broker), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BrokerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateBroker(Guid id, [FromBody] Broker broker)
+    public async Task<IActionResult> UpdateBroker(Guid id, [FromBody] BrokerDto broker)
     {
         if (id != broker.Id)
             return BadRequest();
+        
+        if (broker == null) return BadRequest();
 
         try
         {
-            var updatedBroker = await _brokerService.UpdateBrokerAsync(broker);
-            return Ok(updatedBroker);
+            await _brokerService.UpdateBrokerAsync(broker);
+            return Ok();
         }
         catch (Exception ex)
         {

@@ -19,6 +19,8 @@ var connectionString = builder.Configuration.GetConnectionString("InvestmentTrac
 builder.Services.AddDbContext<SqlDbContext>(options =>
     options.UseSqlServer(connectionString, opts => opts.EnableRetryOnFailure()));
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 //add services
 builder.Services.AddScoped<IBrokerService, BrokerService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
