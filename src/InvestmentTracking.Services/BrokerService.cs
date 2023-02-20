@@ -43,7 +43,7 @@ public class BrokerService : IBrokerService
 
     public async Task<Broker> UpdateBrokerAsync(Broker broker)
     {
-        _unitOfWork.BrokerRepository.Update(broker);
+        await _unitOfWork.BrokerRepository.UpdateAsync(broker);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Updated broker {@Broker} in database", broker);
         return broker;
