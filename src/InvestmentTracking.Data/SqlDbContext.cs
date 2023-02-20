@@ -20,9 +20,29 @@ public class SqlDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Account>()
+            .Property(a => a.Balance)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Transaction>()
+            .Property(t => t.Amount)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<Transaction>()
+            .Property(t => t.Commission)
+            .HasPrecision(18, 2);
+
         modelBuilder.Entity<Transaction>().HasDiscriminator<string>("TransactionType")
             .HasValue<AccountTransaction>("Account")
             .HasValue<StockTransaction>("Stock")
             .HasValue<IncomeTransaction>("Income");
+    }
+
+    public void ApplyMigrations()
+    {
+        if (Database.GetPendingMigrations().Any())
+        {
+            Database.Migrate();
+        }
     }
 }

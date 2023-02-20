@@ -3,6 +3,8 @@ using InvestmentTracking.Data;
 using InvestmentTracking.Core.Data;
 using InvestmentTracking.Data.Repositories;
 using Serilog;
+using InvestmentTracking.Core.Services;
+using InvestmentTracking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +19,12 @@ var connectionString = builder.Configuration.GetConnectionString("InvestmentTrac
 builder.Services.AddDbContext<SqlDbContext>(options =>
     options.UseSqlServer(connectionString, opts => opts.EnableRetryOnFailure()));
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+//add services
+builder.Services.AddScoped<IBrokerService, BrokerService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 //add repos
 builder.Services.AddTransient<IBrokerRepository, BrokerRepository>();
 builder.Services.AddTransient<IAccountRepository, AccountRepository>();
@@ -38,6 +44,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<SqlDbContext>();
+    dbContext.ApplyMigrations();
 }
 
 app.UseSerilogRequestLogging();

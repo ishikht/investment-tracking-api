@@ -351,3 +351,4 @@ MigrationBackup/
 
 # Others
 src/.env
+src/volumes/
