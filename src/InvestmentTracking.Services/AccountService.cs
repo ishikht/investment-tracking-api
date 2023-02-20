@@ -1,6 +1,7 @@
-﻿using InvestmentTracking.Core.Data;
+﻿using AutoMapper;
+using InvestmentTracking.Core.Data;
+using InvestmentTracking.Core.Dtos;
 using InvestmentTracking.Core.Entities;
-using InvestmentTracking.Core.Services;
 using Microsoft.Extensions.Logging;
 
 namespace InvestmentTracking.Services;
@@ -8,45 +9,66 @@ namespace InvestmentTracking.Services;
 public class AccountService : IAccountService
 {
     private readonly ILogger<AccountService> _logger;
+    private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger)
+    public AccountService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<AccountService> logger)
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _mapper = mapper;
     }
 
-    public async Task<Account> AddAccountAsync(Account account)
+    public async Task<AccountDto> AddAccountAsync(AccountDto accountDto)
     {
+        var account = _mapper.Map<Account>(accountDto);
         await _unitOfWork.AccountRepository.AddAsync(account);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Added account {@Account} to database", account);
-        return account;
+
+        var addedAccountDto = _mapper.Map<AccountDto>(account);
+        return addedAccountDto;
     }
 
-    public async Task<IEnumerable<Account>> GetAllAccountsAsync()
+    public async Task<IEnumerable<AccountDto>> GetAllAccountsAsync()
     {
         var accounts = await _unitOfWork.AccountRepository.GetAllAsync();
         _logger.LogInformation("Retrieved all accounts from database");
-        return accounts;
+
+        var accountDtos = _mapper.Map<IEnumerable<AccountDto>>(accounts);
+        return accountDtos;
     }
 
-    public async Task<Account> GetAccountByIdAsync(Guid id)
+    public async Task<AccountDto?> GetAccountByIdAsync(Guid id)
     {
         var account = await _unitOfWork.AccountRepository.GetAsync(id);
         if (account != null)
+        {
             _logger.LogInformation("Retrieved account {@Account} from database by Id {Id}", account, id);
+        }
         else
+        {
             _logger.LogWarning("No account found in database with Id {Id}", id);
-        return account;
+            return null;
+        }
+
+        var accountDto = _mapper.Map<AccountDto>(account);
+        return accountDto;
     }
 
-    public async Task<Account> UpdateAccountAsync(Account account)
+    public async Task UpdateAccountAsync(AccountDto accountDto)
     {
+        var account = await _unitOfWork.AccountRepository.GetAsync(accountDto.Id);
+        if (account == null)
+        {
+            _logger.LogWarning("No account found in database with Id {Id} to update", accountDto.Id);
+            return;
+        }
+
+        _mapper.Map(accountDto, account);
         await _unitOfWork.AccountRepository.UpdateAsync(account);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Updated account {@Account} in database", account);
-        return account;
     }
 
     public async Task DeleteAccountAsync(Guid id)
@@ -63,21 +85,21 @@ public class AccountService : IAccountService
         _logger.LogInformation("Deleted account {@Account} from database", account);
     }
 
-    public async Task<IEnumerable<Account>> GetAccountsByBrokerIdAsync(Guid brokerId)
+    public async Task<IEnumerable<AccountDto>> GetAccountsByBrokerIdAsync(Guid brokerId)
     {
         var accounts = await _unitOfWork.AccountRepository.GetByBrokerIdAsync(brokerId);
-        _logger.LogInformation("Retrieved accounts {@Accounts} from database for broker Id {BrokerId}", accounts,
-            brokerId);
-        return accounts;
+        _logger.LogInformation("Retrieved all accounts from database for broker Id {Id}", brokerId);
+
+        var accountDtos = _mapper.Map<IEnumerable<AccountDto>>(accounts);
+        return accountDtos;
     }
 
     public async Task<decimal> GetBrokerBalanceAsync(Guid brokerId)
     {
-        var accounts = await GetAccountsByBrokerIdAsync(brokerId);
-        var balance = accounts.Sum(a => a.Balance);
-        _logger.LogInformation(
-            "Retrieved broker balance {Balance:C} from accounts {@Accounts} for broker Id {BrokerId}", balance,
-            accounts, brokerId);
+        var balance = await _unitOfWork.AccountRepository.GetBrokerBalance(brokerId);
+        _logger.LogInformation("Retrieved broker balance {Balance:C} from accounts for broker Id {Id}", balance,
+            brokerId);
+
         return balance;
     }
 }

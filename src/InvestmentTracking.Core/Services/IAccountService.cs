@@ -1,14 +1,12 @@
-﻿using InvestmentTracking.Core.Entities;
-
-namespace InvestmentTracking.Core.Services;
+﻿using InvestmentTracking.Core.Dtos;
 
 public interface IAccountService
 {
-    Task<Account> AddAccountAsync(Account account);
-    Task<IEnumerable<Account>> GetAllAccountsAsync();
-    Task<Account> GetAccountByIdAsync(Guid id);
-    Task<Account> UpdateAccountAsync(Account account);
+    Task<AccountDto> AddAccountAsync(AccountDto accountDto);
+    Task<IEnumerable<AccountDto>> GetAllAccountsAsync();
+    Task<AccountDto?> GetAccountByIdAsync(Guid id);
+    Task UpdateAccountAsync(AccountDto accountDto);
     Task DeleteAccountAsync(Guid id);
-    Task<IEnumerable<Account>> GetAccountsByBrokerIdAsync(Guid brokerId);
+    Task<IEnumerable<AccountDto>> GetAccountsByBrokerIdAsync(Guid brokerId);
     Task<decimal> GetBrokerBalanceAsync(Guid brokerId);
 }

@@ -1,11 +1,10 @@
-﻿using InvestmentTracking.Core.Entities;
-using InvestmentTracking.Core.Services;
+﻿using InvestmentTracking.Core.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvestmentTracking.Api.Controllers;
 
-[ApiController]
 [Route("[controller]")]
+[ApiController]
 public class AccountsController : ControllerBase
 {
     private readonly IAccountService _accountService;
@@ -18,24 +17,25 @@ public class AccountsController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AccountDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Account>> AddAccount([FromBody] Account account)
+    public async Task<IActionResult> CreateAccount([FromBody] AccountDto accountDto)
     {
         try
         {
-            var addedAccount = await _accountService.AddAccountAsync(account);
-            return CreatedAtAction(nameof(GetAccountById), new {id = addedAccount.Id}, addedAccount);
+            var createdAccount = await _accountService.AddAccountAsync(accountDto);
+            return CreatedAtAction(nameof(GetAccount), new { id = createdAccount.Id }, createdAccount);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error adding account to database");
+            _logger.LogError(ex, "Error creating account");
             return BadRequest();
         }
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAllAccounts()
+    [ProducesResponseType(typeof(IEnumerable<AccountDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAccounts()
     {
         try
         {
@@ -44,13 +44,15 @@ public class AccountsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving accounts from database");
+            _logger.LogError(ex, "Error retrieving accounts");
             return BadRequest();
         }
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult> GetAccountById(Guid id)
+    [ProducesResponseType(typeof(AccountDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAccount(Guid id)
     {
         try
         {
@@ -61,33 +63,34 @@ public class AccountsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving account from database");
+            _logger.LogError(ex, "Error retrieving account by Id {Id}", id);
             return BadRequest();
         }
     }
 
     [HttpPut("{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(AccountDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] Account account)
+    public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] AccountDto accountDto)
     {
-        if (id != account.Id) return BadRequest();
+        if (id != accountDto.Id)
+            return BadRequest();
 
         try
         {
-            await _accountService.UpdateAccountAsync(account);
-            return NoContent();
+            await _accountService.UpdateAccountAsync(accountDto);
+            return Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating account in database");
+            _logger.LogError(ex, "Error updating account with Id {Id}", id);
             return BadRequest();
         }
     }
 
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAccount(Guid id)
     {
         try
@@ -97,13 +100,14 @@ public class AccountsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting account from database");
-            return BadRequest();
+            _logger.LogError(ex, "Error deleting account with Id {Id}", id);
+            return NotFound();
         }
     }
 
     [HttpGet("broker/{brokerId}")]
-    public async Task<ActionResult> GetAccountsByBrokerId(Guid brokerId)
+    [ProducesResponseType(typeof(IEnumerable<AccountDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAccountsByBrokerId(Guid brokerId)
     {
         try
         {
@@ -112,24 +116,24 @@ public class AccountsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving accounts from database for broker Id {BrokerId}", brokerId);
+            _logger.LogError(ex, "Error retrieving accounts for broker with Id {BrokerId}", brokerId);
             return BadRequest();
         }
     }
 
     [HttpGet("broker/{brokerId}/balance")]
-    public async Task<ActionResult> GetBrokerBalance(Guid brokerId)
+    [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBrokerBalance(Guid brokerId)
     {
         try
         {
             var balance = await _accountService.GetBrokerBalanceAsync(brokerId);
-            return Ok(new {Balance = balance});
+            return Ok(balance);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving broker balance for Id {BrokerId}", brokerId);
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                "An error occurred while retrieving broker balance.");
+            _logger.LogError(ex, "Error retrieving balance for broker with Id {BrokerId}", brokerId);
+            return BadRequest();
         }
     }
 }

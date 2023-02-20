@@ -9,7 +9,7 @@ services:
     depends_on:
       - investment-tracking-sql
   investment-tracking-sql:
-    image: mcr.microsoft.com/mssql/server:${SQL_SERVER_TAG}
+    image: mcr.microsoft.com/mssql/server${SQL_SERVER_TAG}
     container_name:  investment-tracking-sql
     restart: always
     ports:

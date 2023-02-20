@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using InvestmentTracking.Data;
 using InvestmentTracking.Core.Data;
+using InvestmentTracking.Core.Entities;
 using InvestmentTracking.Data.Repositories;
 using Serilog;
 using InvestmentTracking.Core.Services;
 using InvestmentTracking.Services;
+using InvestmentTracking.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,8 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("InvestmentTrackingDb");
 builder.Services.AddDbContext<SqlDbContext>(options =>
     options.UseSqlServer(connectionString, opts => opts.EnableRetryOnFailure()));
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 //add services
 builder.Services.AddScoped<IBrokerService, BrokerService>();
