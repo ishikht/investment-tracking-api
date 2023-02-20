@@ -6,11 +6,10 @@ trigger:
 variables:
   # Azure Container Registry information
   ACR_REPOSITORY: investment-tracking
-  ACR_REGISTRY: exoftdocker.azurecr.io
-  ACR_NAME: exoftdocker
+  ACR_REGISTRY: AzureContainerRegistry
   # Docker image information
-  DOCKER_IMAGE: investment-tracking-api
-  DOCKERFILE: InvestmentTracking.Api/Dockerfile
+  DOCKER_IMAGE: api
+  DOCKERFILE: src/InvestmentTracking.Api/Dockerfile
 
 stages:
 - stage: Build
@@ -24,40 +23,13 @@ stages:
     - checkout: self
       submodules: recursive
     - task: Docker@2
-      displayName: Build and tag Docker image
+      displayName: Build and tag Docker image and Push
       inputs:
         command: buildAndPush
         containerRegistry: $(ACR_REGISTRY)
         repository: $(ACR_REPOSITORY)/$(DOCKER_IMAGE)
         tags: |
           $(Build.SourceBranchName)
-        Dockerfile: $(DOCKERFILE)
 
-- stage: Deploy
-  displayName: Deploy Docker image to Azure Container Registry
-  dependsOn: Build
-  condition: succeeded()
-  jobs:
-  - job: Deploy
-    displayName: Deploy Docker image to Azure Container Registry
-    pool:
-      vmImage: ubuntu-latest
-    steps:
-    - checkout: self
-      submodules: recursive
-    - task: AzureCLI@2
-      displayName: 'Authenticate with ACR'
-      inputs:
-        azureSubscription: 'AzureResouceManagerConnection'
-        scriptType: bash
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az acr login --name $(ACR_NAME)
-    - task: Docker@2
-      displayName: Push Docker image to Azure Container Registry
-      inputs:
-        command: push
-        containerRegistry: $(ACR_REGISTRY)
-        repository: $(ACR_REPOSITORY)/$(DOCKER_IMAGE)
-        tags: |
-          $(Build.SourceBranchName)
+        Dockerfile: $(DOCKERFILE)
+        buildContext: src
