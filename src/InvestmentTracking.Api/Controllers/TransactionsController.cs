@@ -1,4 +1,4 @@
-﻿using InvestmentTracking.Core.Entities;
+﻿using InvestmentTracking.Core.Dtos;
 using InvestmentTracking.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,11 +20,11 @@ public class TransactionsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Transaction>> AddTransaction([FromBody] Transaction transaction)
+    public async Task<ActionResult<TransactionDto>> AddTransaction([FromBody] TransactionDto transactionDto)
     {
         try
         {
-            var addedTransaction = await _transactionService.AddTransactionAsync(transaction);
+            var addedTransaction = await _transactionService.AddTransactionAsync(transactionDto);
             return CreatedAtAction(nameof(GetTransactionById), new { id = addedTransaction.Id }, addedTransaction);
         }
         catch (Exception ex)
@@ -35,7 +35,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Transaction>>> GetAllTransactions()
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetAllTransactions()
     {
         try
         {
@@ -50,7 +50,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Transaction>> GetTransactionById(Guid id)
+    public async Task<ActionResult<TransactionDto>> GetTransactionById(Guid id)
     {
         try
         {
@@ -69,13 +69,13 @@ public class TransactionsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] Transaction transaction)
+    public async Task<IActionResult> UpdateTransaction(Guid id, [FromBody] TransactionDto transactionDto)
     {
-        if (id != transaction.Id) return BadRequest();
+        if (id != transactionDto.Id) return BadRequest();
 
         try
         {
-            await _transactionService.UpdateTransactionAsync(transaction);
+            await _transactionService.UpdateTransactionAsync(transactionDto);
             return NoContent();
         }
         catch (Exception ex)
@@ -103,7 +103,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet("account/{accountId}")]
-    public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionsByAccountId(Guid accountId)
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactionsByAccountId(Guid accountId)
     {
         try
         {

@@ -1,13 +1,13 @@
-﻿using InvestmentTracking.Core.Entities;
+﻿using InvestmentTracking.Core.Dtos;
 
 namespace InvestmentTracking.Core.Services;
 
 public interface ITransactionService
 {
-    Task<Transaction> AddTransactionAsync(Transaction transaction);
-    Task<IEnumerable<Transaction>> GetAllTransactionsAsync();
-    Task<Transaction?> GetTransactionByIdAsync(Guid id);
-    Task<Transaction> UpdateTransactionAsync(Transaction transaction);
+    Task<TransactionDto> AddTransactionAsync(TransactionDto transactionDto);
+    Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync();
+    Task<TransactionDto?> GetTransactionByIdAsync(Guid id);
+    Task UpdateTransactionAsync(TransactionDto transactionDto);
     Task DeleteTransactionAsync(Guid id);
-    Task<IEnumerable<Transaction>> GetTransactionsByAccountIdAsync(Guid accountId);
+    Task<IEnumerable<TransactionDto>> GetTransactionsByAccountIdAsync(Guid accountId);
 }

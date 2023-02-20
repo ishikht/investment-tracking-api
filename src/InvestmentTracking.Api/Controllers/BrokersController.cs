@@ -77,8 +77,6 @@ public class BrokersController : ControllerBase
     {
         if (id != broker.Id)
             return BadRequest();
-        
-        if (broker == null) return BadRequest();
 
         try
         {
