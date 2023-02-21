@@ -11,10 +11,11 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         IAccountRepository accountRepository,
         ITransactionRepository transactionRepository)
     {
-        _context = context;
-        BrokerRepository = brokerRepository;
-        AccountRepository = accountRepository;
-        TransactionRepository = transactionRepository;
+        // Throw an exception if any of the dependencies are null
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        BrokerRepository = brokerRepository ?? throw new ArgumentNullException(nameof(brokerRepository));
+        AccountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+        TransactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
     }
 
     public IBrokerRepository BrokerRepository { get; }

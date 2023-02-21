@@ -20,31 +20,31 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
         _logger = logger;
     }
 
-    public async Task AddAsync(T entity)
+    public virtual async Task AddAsync(T entity)
     {
         await _dbSet.AddAsync(entity);
         _logger.LogDebug("Added entity {@Entity} to DbSet", entity);
     }
 
-    public async Task AddRangeAsync(IEnumerable<T> entities)
+    public virtual async Task AddRangeAsync(IEnumerable<T> entities)
     {
         await _dbSet.AddRangeAsync(entities);
         _logger.LogDebug("Added entities {@Entities} to DbSet", entities);
     }
 
-    public async Task DeleteAsync(T entity)
+    public virtual async Task DeleteAsync(T entity)
     {
         await Task.Run(() => _dbSet.Remove(entity));
         _logger.LogDebug("Deleted entity {@Entity} from DbSet", entity);
     }
 
-    public async Task DeleteRangeAsync(IEnumerable<T> entities)
+    public virtual async Task DeleteRangeAsync(IEnumerable<T> entities)
     {
         await Task.Run(() => _dbSet.RemoveRange(entities));
         _logger.LogDebug("Deleted entities {@Entities} from DbSet", entities);
     }
 
-    public async Task<T?> GetAsync(Guid id)
+    public virtual async Task<T?> GetAsync(Guid id)
     {
         var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
         if (entity != null)
@@ -59,33 +59,38 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         var entities = await _dbSet.ToListAsync();
         _logger.LogDebug("Retrieved all entities {@Entities} from DbSet", entities);
         return entities;
     }
 
-    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
     {
         var entities = await _dbSet.Where(predicate).ToListAsync();
         _logger.LogDebug("Retrieved entities {@Entities} from DbSet with predicate {@Predicate}", entities, predicate);
         return entities;
     }
 
-    public async Task UpdateAsync(T entity)
+    public virtual async Task UpdateAsync(T entity)
     {
+        var existingEntity = await _dbSet.FindAsync(entity.Id);
+        if (existingEntity != null)
+        {
+            _dbContext.Entry(existingEntity).State = EntityState.Detached;
+        }
         await Task.Run(() => _dbSet.Update(entity));
         _logger.LogDebug("Updated entity {@Entity} in DbSet", entity);
     }
 
-    public async Task UpdateRangeAsync(IEnumerable<T> entities)
+    public virtual async Task UpdateRangeAsync(IEnumerable<T> entities)
     {
         await Task.Run(() => _dbSet.UpdateRange(entities));
         _logger.LogDebug("Updated entities {@Entities} in DbSet", entities);
     }
 
-    public async Task SaveChangesAsync()
+    public virtual async Task SaveChangesAsync()
     {
        await _dbContext.SaveChangesAsync();
        _logger.LogDebug("Saved changes to database");
