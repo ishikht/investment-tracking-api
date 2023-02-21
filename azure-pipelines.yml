@@ -14,7 +14,6 @@ variables:
 stages:
 - stage: Test
   displayName: Run unit tests
-  dependsOn: Build
   jobs:
   - job: Test
     displayName: Run unit tests
@@ -44,6 +43,7 @@ stages:
         arguments: '--configuration Release'
 
 - stage: Build 
+  dependsOn: Test
   displayName: Build Docker image
   jobs:
   - job: Build
