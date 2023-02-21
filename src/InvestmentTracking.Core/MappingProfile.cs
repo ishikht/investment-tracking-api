@@ -10,11 +10,17 @@ public class MappingProfile : Profile
     {
         // Map from DTOs to entities
         CreateMap<BrokerDto, Broker>();
-        CreateMap<AccountDto, Account>();
-        CreateMap<TransactionDto, Transaction>();
-        CreateMap<StockTransactionDto, StockTransaction>();
-        CreateMap<AccountTransactionDto, AccountTransaction>();
-        CreateMap<IncomeTransactionDto, IncomeTransaction>();
+        CreateMap<AccountDto, Account>()
+            .ForMember(dest => dest.Balance, opt => opt.Ignore())
+            .ForMember(dest => dest.Broker, opt => opt.Ignore());
+        CreateMap<TransactionDto, Transaction>()
+            .ForMember(dest => dest.Account, opt => opt.Ignore());
+        CreateMap<StockTransactionDto, StockTransaction>()
+            .ForMember(dest => dest.Account, opt => opt.Ignore());
+        CreateMap<AccountTransactionDto, AccountTransaction>()
+            .ForMember(dest => dest.Account, opt => opt.Ignore());
+        CreateMap<IncomeTransactionDto, IncomeTransaction>()
+            .ForMember(dest => dest.Account, opt => opt.Ignore());
 
         // Map from entities to DTOs
         CreateMap<Broker, BrokerDto>();

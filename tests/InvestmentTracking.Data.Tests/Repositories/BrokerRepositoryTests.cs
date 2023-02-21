@@ -35,6 +35,11 @@ public class BrokerRepositoryTests
 
         // Assert
         Assert.Equal(1, _dbContext.Brokers.Count());
+
+        var addedBroker = await _repository.GetAsync(broker.Id);
+        Assert.NotNull(addedBroker);
+        Assert.Equal(broker.Name, addedBroker.Name);
+        Assert.NotEqual(Guid.Empty, addedBroker.Id);
     }
 
     [Fact]
@@ -49,8 +54,28 @@ public class BrokerRepositoryTests
         var result = await _repository.GetAsync(broker.Id);
 
         // Assert
+        Assert.NotNull(result);
         Assert.Equal(broker.Id, result.Id);
         Assert.Equal(broker.Name, result.Name);
+    }
+
+    [Fact]
+    public async Task AddAsync_DoesNotChangeIdWhenItIsSet()
+    {
+        // Arrange
+        var broker = new Broker { Id = Guid.NewGuid(), Name = "Test Broker" };
+
+        // Act
+        await _repository.AddAsync(broker);
+        await _dbContext.SaveChangesAsync();
+
+        // Assert
+        Assert.Equal(1, _dbContext.Brokers.Count());
+
+        var addedBroker = await _repository.GetAsync(broker.Id);
+        Assert.NotNull(addedBroker);
+        Assert.Equal(broker.Id, addedBroker.Id);
+        Assert.Equal(broker.Name, addedBroker.Name);
     }
 
     [Fact]

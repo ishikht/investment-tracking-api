@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq.Expressions;
-using InvestmentTracking.Core.Data;
+﻿using System.Linq.Expressions;
 using InvestmentTracking.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -22,6 +20,14 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
 
     public virtual async Task AddAsync(T entity)
     {
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
+        if (entity.Id == Guid.Empty)
+        {
+            entity.Id = Guid.NewGuid();
+        }
+
         await _dbSet.AddAsync(entity);
         _logger.LogDebug("Added entity {@Entity} to DbSet", entity);
     }

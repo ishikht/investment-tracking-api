@@ -24,6 +24,21 @@ public class AccountRepositoryTests
     }
 
     [Fact]
+    public async Task AddAsync_GeneratesNewId_WhenIdIsEmpty()
+    {
+        // Arrange
+        var entity = new Account { Name = "Test Account" };
+        entity.Id = Guid.Empty;
+
+        // Act
+        await _repository.AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+
+        // Assert
+        Assert.NotEqual(Guid.Empty, entity.Id);
+    }
+
+    [Fact]
     public async Task AddAsync_AddsAccountToDatabase()
     {
         // Arrange
@@ -34,6 +49,7 @@ public class AccountRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Assert
+        Assert.Equal(1, _dbContext.Accounts.Count());
         var result = await _dbContext.Accounts.FindAsync(account.Id);
         Assert.NotNull(result);
         Assert.Equal(account.Name, result.Name);
