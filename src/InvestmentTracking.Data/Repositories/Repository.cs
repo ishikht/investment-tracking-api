@@ -65,11 +65,14 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
         return entity;
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async IAsyncEnumerable<T> GetAllAsync()
     {
         var entities = await _dbSet.ToListAsync();
+        foreach (var entitiy in entities)
+        {
+            yield return entitiy;
+        }
         _logger.LogDebug("Retrieved all entities {@Entities} from DbSet", entities);
-        return entities;
     }
 
     public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)

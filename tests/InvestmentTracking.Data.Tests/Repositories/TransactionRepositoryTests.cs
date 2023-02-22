@@ -107,10 +107,15 @@ public class TransactionRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetAllAsync();
+        int count = 0;
+        var result =  _repository.GetAllAsync();
+        await foreach (var item in result)
+        {
+            count++;
+        }
 
         // Assert
-        Assert.Equal(3, result.Count());
+        Assert.Equal(3, count);
     }
 
     [Fact]

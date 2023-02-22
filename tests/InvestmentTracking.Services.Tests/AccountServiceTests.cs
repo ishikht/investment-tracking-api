@@ -36,15 +36,15 @@ public class AccountServiceTests
             BrokerId = Guid.NewGuid()
         };
 
-        Account capturedAccount = null;
+        Account savedAccount = null;
 
         var accountRepositoryMock = new Mock<IAccountRepository>();
         accountRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Account>()))
             .Returns((Account a) =>
             {
-                capturedAccount = a;
-                capturedAccount.Id = a.Id;
-                return Task.FromResult(capturedAccount);
+                savedAccount = a;
+                savedAccount.Id = a.Id;
+                return Task.FromResult(savedAccount);
             });
 
         _unitOfWorkMock.Setup(x => x.AccountRepository).Returns(accountRepositoryMock.Object);
@@ -62,9 +62,9 @@ public class AccountServiceTests
 
         _unitOfWorkMock.Verify(x => x.AccountRepository.AddAsync(It.IsAny<Account>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
-        Assert.NotNull(capturedAccount);
-        Assert.Equal(accountDto.Name, capturedAccount.Name);
-        Assert.Equal(accountDto.BrokerId, capturedAccount.BrokerId);
+        Assert.NotNull(savedAccount);
+        Assert.Equal(accountDto.Name, savedAccount.Name);
+        Assert.Equal(accountDto.BrokerId, savedAccount.BrokerId);
     }
 
     [Fact]
@@ -78,12 +78,12 @@ public class AccountServiceTests
         };
 
         var accountRepositoryMock = new Mock<IAccountRepository>();
-        accountRepositoryMock.Setup(x => x.GetAllAsync()).ReturnsAsync(accounts);
+        accountRepositoryMock.Setup(x => x.GetAllAsync()).Returns(accounts.ToAsyncEnumerable());
         _unitOfWorkMock.Setup(x => x.AccountRepository).Returns(accountRepositoryMock.Object);
         var service = new AccountService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
 
         // Act
-        var result = await service.GetAllAccountsAsync();
+        var result = await service.GetAllAccountsAsync().ToListAsync();
 
         // Assert
         Assert.NotNull(result);
@@ -127,11 +127,11 @@ public class AccountServiceTests
         var accountRepositoryMock = new Mock<IAccountRepository>();
         accountRepositoryMock.Setup(x => x.GetAsync(accountId)).ReturnsAsync(originalAccount);
 
-        Account capturedAccount = null;
+        Account savedAccount = null;
         accountRepositoryMock.Setup(x => x.UpdateAsync(It.IsAny<Account>()))
             .Returns((Account a) =>
             {
-                capturedAccount = a;
+                savedAccount = a;
                 return Task.CompletedTask;
             });
 
@@ -145,9 +145,9 @@ public class AccountServiceTests
         // Assert
         accountRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Account>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
-        Assert.NotNull(capturedAccount);
-        Assert.Equal(updatedAccountDto.Name, capturedAccount.Name);
-        Assert.Equal(updatedAccountDto.BrokerId, capturedAccount.BrokerId);
+        Assert.NotNull(savedAccount);
+        Assert.Equal(updatedAccountDto.Name, savedAccount.Name);
+        Assert.Equal(updatedAccountDto.BrokerId, savedAccount.BrokerId);
     }
 
     [Fact]

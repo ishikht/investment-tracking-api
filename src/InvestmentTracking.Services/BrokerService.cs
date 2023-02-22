@@ -31,12 +31,14 @@ public class BrokerService : IBrokerService
         return brokerDto;
     }
 
-    public async Task<IEnumerable<BrokerDto>> GetAllBrokersAsync()
+    public async IAsyncEnumerable<BrokerDto> GetAllBrokersAsync()
     {
-        var brokers = await _unitOfWork.BrokerRepository.GetAllAsync();
+        var brokers =  _unitOfWork.BrokerRepository.GetAllAsync();
+        await foreach (var broker in brokers)
+        {
+            yield return _mapper.Map<BrokerDto>(broker);
+        }
         _logger.LogInformation("Retrieved all brokers from database");
-        var brokerDtos = _mapper.Map<IEnumerable<BrokerDto>>(brokers);
-        return brokerDtos;
     }
 
     public async Task<BrokerDto?> GetBrokerByIdAsync(Guid id)

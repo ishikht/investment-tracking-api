@@ -3,7 +3,7 @@
 public interface IAccountService
 {
     Task<AccountDto> AddAccountAsync(AccountDto accountDto);
-    Task<IEnumerable<AccountDto>> GetAllAccountsAsync();
+    IAsyncEnumerable<AccountDto> GetAllAccountsAsync();
     Task<AccountDto?> GetAccountByIdAsync(Guid id);
     Task UpdateAccountAsync(AccountDto accountDto);
     Task DeleteAccountAsync(Guid id);

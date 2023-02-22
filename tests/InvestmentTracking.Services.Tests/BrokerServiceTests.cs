@@ -75,12 +75,12 @@ public class BrokerServiceTests
         };
 
         var brokerRepositoryMock = new Mock<IBrokerRepository>();
-        brokerRepositoryMock.Setup(x => x.GetAllAsync()).ReturnsAsync(brokers);
+        brokerRepositoryMock.Setup(x => x.GetAllAsync()).Returns(brokers.ToAsyncEnumerable());
         _unitOfWorkMock.Setup(x => x.BrokerRepository).Returns(brokerRepositoryMock.Object);
         var service = new BrokerService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
 
         // Act
-        var result = await service.GetAllBrokersAsync();
+        var result = await service.GetAllBrokersAsync().ToListAsync();
 
         // Assert
         Assert.NotNull(result);

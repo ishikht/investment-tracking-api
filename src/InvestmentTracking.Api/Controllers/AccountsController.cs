@@ -1,4 +1,5 @@
 ﻿using InvestmentTracking.Core.Dtos;
+using InvestmentTracking.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InvestmentTracking.Api.Controllers;
@@ -34,12 +35,12 @@ public class AccountsController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<AccountDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAccounts()
+    [ProducesResponseType(typeof(IAsyncEnumerable<AccountDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IAsyncEnumerable<AccountDto>>> GetAccounts()
     {
         try
         {
-            var accounts = await _accountService.GetAllAccountsAsync();
+            var accounts =  _accountService.GetAllAccountsAsync();
             return Ok(accounts);
         }
         catch (Exception ex)

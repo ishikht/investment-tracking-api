@@ -36,12 +36,12 @@ public class BrokersController : ControllerBase
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<BrokerDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetBrokers()
+    [ProducesResponseType(typeof(IAsyncEnumerable<BrokerDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IAsyncEnumerable<BrokerDto>>> GetBrokers()
     {
         try
         {
-            var brokers = await _brokerService.GetAllBrokersAsync();
+            var brokers = _brokerService.GetAllBrokersAsync();
             return Ok(brokers);
         }
         catch (Exception ex)

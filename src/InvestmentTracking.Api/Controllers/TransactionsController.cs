@@ -35,11 +35,11 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetAllTransactions()
+    public async Task<ActionResult<IAsyncEnumerable<TransactionDto>>> GetAllTransactions()
     {
         try
         {
-            var transactions = await _transactionService.GetAllTransactionsAsync();
+            var transactions =  _transactionService.GetAllTransactionsAsync();
             return Ok(transactions);
         }
         catch (Exception ex)

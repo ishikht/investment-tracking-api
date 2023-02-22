@@ -30,13 +30,14 @@ public class AccountService : IAccountService
         return addedAccountDto;
     }
 
-    public async Task<IEnumerable<AccountDto>> GetAllAccountsAsync()
+    public async IAsyncEnumerable<AccountDto> GetAllAccountsAsync()
     {
-        var accounts = await _unitOfWork.AccountRepository.GetAllAsync();
+        var accounts = _unitOfWork.AccountRepository.GetAllAsync();
+        await foreach (var account in accounts)
+        {
+            yield return _mapper.Map<AccountDto>(account);
+        }
         _logger.LogInformation("Retrieved all accounts from database");
-
-        var accountDtos = _mapper.Map<IEnumerable<AccountDto>>(accounts);
-        return accountDtos;
     }
 
     public async Task<AccountDto?> GetAccountByIdAsync(Guid id)

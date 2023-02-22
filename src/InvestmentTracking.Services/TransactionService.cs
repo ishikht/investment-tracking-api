@@ -22,22 +22,72 @@ public class TransactionService : ITransactionService
 
     public async Task<TransactionDto> AddTransactionAsync(TransactionDto transactionDto)
     {
-        var transaction = _mapper.Map<Transaction>(transactionDto);
+        Transaction transaction;
+
+        switch (transactionDto)
+        {
+            case StockTransactionDto stockTransactionDto:
+                transaction = _mapper.Map<StockTransaction>(stockTransactionDto);
+                break;
+            case AccountTransactionDto accountTransactionDto:
+                transaction = _mapper.Map<AccountTransaction>(accountTransactionDto);
+                break;
+            case IncomeTransactionDto incomeTransactionDto:
+                transaction = _mapper.Map<IncomeTransaction>(incomeTransactionDto);
+                break;
+            default:
+                throw new ArgumentException($"Invalid transaction DTO type: {transactionDto.GetType().Name}", nameof(transactionDto));
+        }
+
         await _unitOfWork.TransactionRepository.AddAsync(transaction);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Added transaction {@Transaction} to database", transaction);
 
-        var addedTransactionDto = _mapper.Map<TransactionDto>(transaction);
+        // Determine the corresponding derived type of TransactionDto and use that type for mapping
+        TransactionDto addedTransactionDto;
+        if (transaction is StockTransaction)
+        {
+            addedTransactionDto = _mapper.Map<StockTransactionDto>(transaction);
+        }
+        else if (transaction is AccountTransaction)
+        {
+            addedTransactionDto = _mapper.Map<AccountTransactionDto>(transaction);
+        }
+        else if (transaction is IncomeTransaction)
+        {
+            addedTransactionDto = _mapper.Map<IncomeTransactionDto>(transaction);
+        }
+        else
+        {
+            throw new ArgumentException("Unrecognized transaction type", nameof(transaction));
+        }
+
         return addedTransactionDto;
     }
 
-    public async Task<IEnumerable<TransactionDto>> GetAllTransactionsAsync()
+    public async IAsyncEnumerable<TransactionDto> GetAllTransactionsAsync()
     {
-        var transactions = await _unitOfWork.TransactionRepository.GetAllAsync();
-        _logger.LogInformation("Retrieved all transactions from database");
+        var transactions = _unitOfWork.TransactionRepository.GetAllAsync();
 
-        var transactionDtos = _mapper.Map<IEnumerable<TransactionDto>>(transactions);
-        return transactionDtos;
+        await foreach (var transaction in transactions)
+        {
+            switch (transaction)
+            {
+                case StockTransaction stockTransaction:
+                    yield return _mapper.Map<StockTransactionDto>(stockTransaction);
+                    break;
+                case AccountTransaction accountTransaction:
+                    yield return _mapper.Map<AccountTransactionDto>(accountTransaction);
+                    break;
+                case IncomeTransaction incomeTransaction:
+                    yield return _mapper.Map<IncomeTransactionDto>(incomeTransaction);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unrecognized transaction type: {transaction.GetType().Name}");
+            }
+        }
+
+        _logger.LogInformation("Retrieved all transactions from database");
     }
 
     public async Task<TransactionDto?> GetTransactionByIdAsync(Guid id)
@@ -53,23 +103,60 @@ public class TransactionService : ITransactionService
             return null;
         }
 
-        var transactionDto = _mapper.Map<TransactionDto>(transaction);
+        TransactionDto transactionDto;
+        switch (transaction)
+        {
+            case StockTransaction stockTransaction:
+                transactionDto = _mapper.Map<StockTransactionDto>(stockTransaction);
+                break;
+            case AccountTransaction accountTransaction:
+                transactionDto = _mapper.Map<AccountTransactionDto>(accountTransaction);
+                break;
+            case IncomeTransaction incomeTransaction:
+                transactionDto = _mapper.Map<IncomeTransactionDto>(incomeTransaction);
+                break;
+            default:
+                throw new InvalidOperationException($"Unrecognized transaction type: {transaction.GetType().Name}");
+        }
+
         return transactionDto;
     }
 
+
     public async Task UpdateTransactionAsync(TransactionDto transactionDto)
     {
+        if (transactionDto == null || transactionDto.Id == Guid.Empty)
+        {
+            _logger.LogWarning("Transaction ID cannot be null or empty");
+            throw new ArgumentException("Transaction ID cannot be null or empty");
+        }
+
         var transaction = await _unitOfWork.TransactionRepository.GetAsync(transactionDto.Id);
         if (transaction == null)
         {
-            _logger.LogWarning("No transaction found in database with Id {Id} to update", transactionDto.Id);
-            return;
+            _logger.LogWarning("Transaction with ID {TransactionId} not found.", transactionDto.Id);
+            throw new ArgumentException($"Transaction with ID {transactionDto.Id} not found.");
         }
 
-        _mapper.Map(transactionDto, transaction);
+        switch (transaction)
+        {
+            case StockTransaction stockTransaction:
+                _mapper.Map((StockTransactionDto)transactionDto, stockTransaction);
+                break;
+            case AccountTransaction accountTransaction:
+                _mapper.Map((AccountTransactionDto)transactionDto, accountTransaction);
+                break;
+            case IncomeTransaction incomeTransaction:
+                _mapper.Map((IncomeTransactionDto)transactionDto, incomeTransaction);
+                break;
+            default:
+                _logger.LogError("Unrecognized transaction type: {TransactionType}", transaction.GetType().Name);
+                throw new InvalidOperationException($"Unrecognized transaction type: {transaction.GetType().Name}");
+        }
+
         await _unitOfWork.TransactionRepository.UpdateAsync(transaction);
         await _unitOfWork.SaveChangesAsync();
-        _logger.LogInformation("Updated transaction {@Transaction} in database", transaction);
+        _logger.LogInformation("Transaction with ID {TransactionId} updated successfully.", transactionDto.Id);
     }
 
     public async Task DeleteTransactionAsync(Guid id)

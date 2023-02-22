@@ -6,7 +6,7 @@ namespace InvestmentTracking.Core.Services;
 public interface IBrokerService
 {
     Task<BrokerDto> AddBrokerAsync(BrokerDto broker);
-    Task<IEnumerable<BrokerDto>> GetAllBrokersAsync();
+    IAsyncEnumerable<BrokerDto> GetAllBrokersAsync();
     Task<BrokerDto?> GetBrokerByIdAsync(Guid id);
     Task UpdateBrokerAsync(BrokerDto brokerDto);
     Task DeleteBrokerAsync(Guid id);
