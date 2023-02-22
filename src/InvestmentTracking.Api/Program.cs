@@ -23,6 +23,7 @@ builder.Services.AddDbContext<SqlDbContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+builder.Services.AddTransient<ITransactionFactory, TransactionFactory>();
 //add services
 builder.Services.AddScoped<IBrokerService, BrokerService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

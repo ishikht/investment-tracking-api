@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InvestmentTracking.Core;
 using InvestmentTracking.Core.Data;
 using InvestmentTracking.Core.Dtos;
 using InvestmentTracking.Core.Entities;
@@ -12,12 +13,14 @@ public class TransactionServiceTests
 {
     private readonly Mock<ILogger<TransactionService>> _loggerMock;
     private readonly IMapper _mapper;
+    private readonly TransactionFactory _transactionFactory;
     private readonly Mock<ITransactionRepository> _transactionRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
 
     public TransactionServiceTests(AutoMapperFixture fixture)
     {
         _mapper = fixture.Mapper;
+        _transactionFactory = new TransactionFactory(_mapper);
 
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _transactionRepositoryMock = new Mock<ITransactionRepository>();
@@ -52,9 +55,8 @@ public class TransactionServiceTests
                 return Task.FromResult(capturedTransaction);
             });
 
-        _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
-
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         var result = await transactionService.AddTransactionAsync(stockTransactionDto);
@@ -86,48 +88,53 @@ public class TransactionServiceTests
         // Arrange
         var transactions = new List<Transaction>
         {
-            new StockTransaction { Id = Guid.NewGuid(), Ticker = "AAPL", Shares = 10, Amount = 100.00M },
-            new AccountTransaction { Id = Guid.NewGuid(), AccountId = Guid.NewGuid(), Amount = 500.00M },
-            new IncomeTransaction { Id = Guid.NewGuid(), Amount = 5000.00M },
+            new StockTransaction {Id = Guid.NewGuid(), Ticker = "AAPL", Shares = 10, Amount = 100.00M},
+            new AccountTransaction {Id = Guid.NewGuid(), AccountId = Guid.NewGuid(), Amount = 500.00M},
+            new IncomeTransaction {Id = Guid.NewGuid(), Amount = 5000.00M}
         };
         _unitOfWorkMock.Setup(uow => uow.TransactionRepository.GetAllAsync()).Returns(transactions.ToAsyncEnumerable());
 
         // Act
         var result = new List<TransactionDto>();
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
-        await foreach (var transactionDto in transactionService.GetAllTransactionsAsync())
-        {
-            result.Add(transactionDto);
-        }
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
+        await foreach (var transactionDto in transactionService.GetAllTransactionsAsync()) result.Add(transactionDto);
 
         // Assert
         Assert.Equal(transactions.Count, result.Count);
-        for (int i = 0; i < transactions.Count; i++)
-        {
-            Assert.Equal(transactions[i].Id, result[i].Id);
-        }
+        for (var i = 0; i < transactions.Count; i++) Assert.Equal(transactions[i].Id, result[i].Id);
     }
 
-    [Fact]
-    public async Task GetTransactionByIdAsync_ReturnsTransaction_IfExists()
+    [Theory]
+    [InlineData(typeof(StockTransaction), "AAPL", 10, 100.00)]
+    [InlineData(typeof(AccountTransaction), null, null, 500.00)]
+    [InlineData(typeof(IncomeTransaction), null, null, 5000.00)]
+    public async Task GetTransactionByIdAsync_ReturnsTransaction_IfExists(Type transactionType, string ticker, int? shares, decimal amount)
     {
         // Arrange
         var transactionId = Guid.NewGuid();
-        var accountTransactionDto = new AccountTransactionDto
+
+        Transaction transaction = null;
+        if (transactionType == typeof(StockTransaction))
         {
-            Id = transactionId,
-            AccountId = Guid.NewGuid(),
-            Date = DateTime.Now,
-            Amount = 500
-        };
-        var accountTransaction = _mapper.Map<AccountTransaction>(accountTransactionDto);
+            transaction = new StockTransaction { Id = transactionId, Ticker = ticker, Shares = shares.Value, Amount = amount };
+        }
+        else if (transactionType == typeof(AccountTransaction))
+        {
+            transaction = new AccountTransaction { Id = transactionId, AccountId = Guid.NewGuid(), Amount = amount };
+        }
+        else if (transactionType == typeof(IncomeTransaction))
+        {
+            transaction = new IncomeTransaction { Id = transactionId, Amount = amount };
+        }
 
 
-        _transactionRepositoryMock.Setup(x => x.GetAsync(transactionId)).ReturnsAsync(accountTransaction);
+        _transactionRepositoryMock.Setup(x => x.GetAsync(transactionId)).ReturnsAsync(transaction);
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         var result = await transactionService.GetTransactionByIdAsync(transactionId);
@@ -135,10 +142,15 @@ public class TransactionServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(transactionId, result.Id);
-        Assert.IsType<AccountTransactionDto>(result);
-        Assert.Equal(accountTransactionDto.AccountId, result.AccountId);
-        Assert.Equal(accountTransactionDto.Date, result.Date);
-        Assert.Equal(accountTransactionDto.Amount, result.Amount);
+        Assert.Equal(transactionType.Name.Replace("Transaction", "TransactionDto"), result.GetType().Name);
+
+        if (transactionType == typeof(StockTransaction))
+        {
+            Assert.Equal(ticker, ((StockTransactionDto)result).Ticker);
+            Assert.Equal(shares, ((StockTransactionDto)result).Shares);
+        }
+
+        Assert.Equal(amount, result.Amount);
 
         _unitOfWorkMock.Verify(x => x.TransactionRepository.GetAsync(transactionId), Times.Once);
     }
@@ -161,7 +173,8 @@ public class TransactionServiceTests
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         accountTransactionDto.Amount = 500;
@@ -192,7 +205,8 @@ public class TransactionServiceTests
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         await transactionService.DeleteTransactionAsync(transactionId);
@@ -244,7 +258,8 @@ public class TransactionServiceTests
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         var result = await transactionService.GetTransactionsByAccountIdAsync(accountId);
@@ -272,7 +287,8 @@ public class TransactionServiceTests
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act
         var result = await transactionService.GetTransactionByIdAsync(transactionId);
@@ -300,10 +316,12 @@ public class TransactionServiceTests
 
         _unitOfWorkMock.Setup(x => x.TransactionRepository).Returns(_transactionRepositoryMock.Object);
 
-        var transactionService = new TransactionService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
+        var transactionService =
+            new TransactionService(_unitOfWorkMock.Object, _mapper, _transactionFactory, _loggerMock.Object);
 
         // Act and Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => transactionService.UpdateTransactionAsync(accountTransactionDto));
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            transactionService.UpdateTransactionAsync(accountTransactionDto));
 
         _unitOfWorkMock.Verify(x => x.TransactionRepository.GetAsync(invalidTransactionId), Times.Once);
     }
