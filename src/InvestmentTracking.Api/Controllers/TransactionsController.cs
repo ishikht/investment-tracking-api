@@ -35,11 +35,11 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IAsyncEnumerable<TransactionDto>>> GetAllTransactions()
+    public async Task<ActionResult<IEnumerable<TransactionDto>>> GetAllTransactions()
     {
         try
         {
-            var transactions =  _transactionService.GetAllTransactionsAsync();
+            var transactions = await _transactionService.GetAllTransactionsAsync().ToListAsync();
             return Ok(transactions);
         }
         catch (Exception ex)
@@ -105,6 +105,8 @@ public class TransactionsController : ControllerBase
     [HttpGet("account/{accountId}")]
     public async Task<ActionResult<IEnumerable<TransactionDto>>> GetTransactionsByAccountId(Guid accountId)
     {
+        if (accountId == Guid.Empty) return BadRequest();
+
         try
         {
             var transactions = await _transactionService.GetTransactionsByAccountIdAsync(accountId);
