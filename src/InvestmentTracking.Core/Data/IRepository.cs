@@ -42,7 +42,7 @@ public interface IRepository<T> where T : class, IEntity
     /// Gets all entities of the type T from the repository.
     /// </summary>
     /// <returns>A collection of entities.</returns>
-    Task<IEnumerable<T>> GetAllAsync();
+    IAsyncEnumerable<T> GetAllAsync();
 
     /// <summary>
     /// Finds all entities matching the specified predicate.

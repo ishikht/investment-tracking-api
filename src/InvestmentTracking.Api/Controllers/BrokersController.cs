@@ -1,5 +1,4 @@
 ﻿using InvestmentTracking.Core.Dtos;
-using InvestmentTracking.Core.Entities;
 using InvestmentTracking.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,11 +36,11 @@ public class BrokersController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<BrokerDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetBrokers()
+    public async Task<ActionResult<IEnumerable<BrokerDto>>> GetBrokers()
     {
         try
         {
-            var brokers = await _brokerService.GetAllBrokersAsync();
+            var brokers = await _brokerService.GetAllBrokersAsync().ToListAsync();
             return Ok(brokers);
         }
         catch (Exception ex)

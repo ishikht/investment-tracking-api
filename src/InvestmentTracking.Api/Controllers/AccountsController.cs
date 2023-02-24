@@ -35,11 +35,11 @@ public class AccountsController : ControllerBase
 
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<AccountDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAccounts()
+    public async Task<ActionResult<IEnumerable<AccountDto>>> GetAccounts()
     {
         try
         {
-            var accounts = await _accountService.GetAllAccountsAsync();
+            var accounts = await _accountService.GetAllAccountsAsync().ToListAsync();
             return Ok(accounts);
         }
         catch (Exception ex)
@@ -125,6 +125,8 @@ public class AccountsController : ControllerBase
     [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBrokerBalance(Guid brokerId)
     {
+        if (brokerId == Guid.Empty) return BadRequest();
+
         try
         {
             var balance = await _accountService.GetBrokerBalanceAsync(brokerId);
