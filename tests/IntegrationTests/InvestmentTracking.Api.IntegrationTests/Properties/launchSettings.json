@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "InvestmentTracking.Api.IntegrationTests": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
