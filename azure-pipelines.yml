@@ -40,7 +40,7 @@ stages:
         command: test
         projects: |
           **/*Tests.csproj
-        arguments: '--configuration Release --filter Category!=Integration'
+        arguments: '--configuration Release --filter TestCategory!=Integration'
 
 - stage: Build 
   dependsOn: Test
