@@ -64,3 +64,34 @@ stages:
 
         Dockerfile: $(DOCKERFILE)
         buildContext: src
+
+- stage: Integration 
+  dependsOn: Build
+  displayName: Run Integration tests
+  jobs:
+  - job: Test
+    displayName: Run Integration tests
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - checkout: self
+      submodules: recursive
+    - task: DotNetCoreCLI@2
+      displayName: Restore dependencies
+      inputs:
+        command: restore
+        projects: |
+          **/*.csproj
+    - task: DotNetCoreCLI@2
+      displayName: Build solution
+      inputs:
+        command: build
+        projects: |
+          **/*.csproj
+    - task: DotNetCoreCLI@2
+      displayName: Run unit tests
+      inputs:
+        command: test
+        projects: |
+          **/*Tests.csproj
+        arguments: '--configuration Release --filter TestCategory==Integration'   
