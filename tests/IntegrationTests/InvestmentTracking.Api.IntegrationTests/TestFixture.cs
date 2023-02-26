@@ -50,7 +50,7 @@ namespace InvestmentTracking.Api.IntegrationTests
             WaitForDockerComposeStartup();
         }
 
-        private async void WaitForDockerComposeStartup()
+        private void WaitForDockerComposeStartup()
         {
             // Define the timeout
             var timeout = TimeSpan.FromSeconds(_dockerComposeStartupTimeoutSeconds);
@@ -70,7 +70,7 @@ namespace InvestmentTracking.Api.IntegrationTests
                 {
                     try
                     {
-                        var response = await Client.GetAsync("swagger/index.html");
+                        var response =  Client.GetAsync("swagger/index.html").GetAwaiter().GetResult();
                         if (response.IsSuccessStatusCode) return;
                     }
                     catch (Exception)
