@@ -94,4 +94,4 @@ stages:
         command: test
         projects: |
           **/*Tests.csproj
-        arguments: '--configuration Release --filter TestCategory==Integration'   
+        arguments: '--configuration Release --filter TestCategory=Integration'   
