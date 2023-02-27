@@ -97,6 +97,16 @@ public class BrokerRepositoryTests
     }
 
     [Fact]
+    public async Task UpdateAsync_ThrowsExceptionWhenBrokerNotFound()
+    {
+        // Arrange
+        var broker = new Broker { Id = Guid.NewGuid(), Name = "Test Broker" };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _repository.UpdateAsync(broker));
+    }
+
+    [Fact]
     public async Task DeleteAsync_DeletesBrokerFromDatabase()
     {
         // Arrange

@@ -117,7 +117,7 @@ public class BrokerServiceTests
     {
         // Arrange
         var brokerId = Guid.NewGuid();
-        var brokerDto = new BrokerDto { Id = brokerId, Name = "Test Broker" };
+        var brokerDto = new BrokerUpdateDto { Name = "Test Broker" };
 
         var broker = new Broker { Id = brokerId, Name = "Old Name" };
         var brokerRepositoryMock = new Mock<IBrokerRepository>();
@@ -126,7 +126,7 @@ public class BrokerServiceTests
         var service = new BrokerService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
 
         // Act
-        await service.UpdateBrokerAsync(brokerDto);
+        await service.UpdateBrokerAsync(brokerId, brokerDto);
 
         // Assert
         brokerRepositoryMock.Verify(x => x.UpdateAsync(broker), Times.Once);

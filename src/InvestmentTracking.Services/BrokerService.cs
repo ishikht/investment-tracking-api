@@ -57,13 +57,13 @@ public class BrokerService : IBrokerService
         return brokerDto;
     }
 
-    public async Task UpdateBrokerAsync(BrokerDto brokerDto)
+    public async Task UpdateBrokerAsync(Guid id, BrokerUpdateDto brokerDto)
     {
-        var broker = await _unitOfWork.BrokerRepository.GetAsync(brokerDto.Id);
+        var broker = await _unitOfWork.BrokerRepository.GetAsync(id);
         if (broker == null)
         {
-            _logger.LogWarning("No broker found in database with Id {Id} to update", brokerDto.Id);
-            return;
+            _logger.LogWarning("No broker found in database with Id {Id} to update", id);
+            throw new KeyNotFoundException($"No broker found in database with Id {id} to update");
         }
         _mapper.Map(brokerDto, broker);
         await _unitOfWork.BrokerRepository.UpdateAsync(broker);
@@ -77,7 +77,7 @@ public class BrokerService : IBrokerService
         if (broker == null)
         {
             _logger.LogWarning("No broker found in database with Id {Id} to delete", id);
-            return;
+            throw new KeyNotFoundException($"No broker found in database with Id {id} to delete");
         }
 
         await _unitOfWork.BrokerRepository.DeleteAsync(broker);

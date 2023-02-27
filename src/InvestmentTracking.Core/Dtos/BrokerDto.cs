@@ -5,3 +5,8 @@ public class BrokerDto
     public string Name { get; set; }
 }
 
+
+public class BrokerUpdateDto
+{
+    public string Name { get; set; }
+}

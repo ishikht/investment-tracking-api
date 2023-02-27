@@ -85,10 +85,13 @@ public class Repository<T> : IRepository<T> where T : class, IEntity
     public virtual async Task UpdateAsync(T entity)
     {
         var existingEntity = await _dbSet.FindAsync(entity.Id);
-        if (existingEntity != null)
+
+        if (existingEntity == null)
         {
-            _dbContext.Entry(existingEntity).State = EntityState.Detached;
+            throw new KeyNotFoundException($"Entity with id {entity.Id} not found.");
         }
+
+        _dbContext.Entry(existingEntity).State = EntityState.Detached;
         await Task.Run(() => _dbSet.Update(entity));
         _logger.LogDebug("Updated entity {@Entity} in DbSet", entity);
     }

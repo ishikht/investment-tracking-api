@@ -8,6 +8,6 @@ public interface IBrokerService
     Task<BrokerDto> AddBrokerAsync(BrokerDto broker);
     IAsyncEnumerable<BrokerDto> GetAllBrokersAsync();
     Task<BrokerDto?> GetBrokerByIdAsync(Guid id);
-    Task UpdateBrokerAsync(BrokerDto brokerDto);
+    Task UpdateBrokerAsync(Guid id, BrokerUpdateDto brokerDto);
     Task DeleteBrokerAsync(Guid id);
 }

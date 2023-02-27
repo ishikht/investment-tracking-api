@@ -164,9 +164,9 @@ namespace InvestmentTracking.Api.Tests
         {
             // Arrange
             var brokerId = Guid.NewGuid();
-            var broker = new BrokerDto { Id = brokerId, Name = "Test Broker" };
+            var broker = new BrokerUpdateDto { Name = "Test Broker" };
             var mockBrokerService = new Mock<IBrokerService>();
-            mockBrokerService.Setup(service => service.UpdateBrokerAsync(It.IsAny<BrokerDto>())).Returns(Task.CompletedTask);
+            mockBrokerService.Setup(service => service.UpdateBrokerAsync(It.IsAny<Guid>(),It.IsAny<BrokerUpdateDto>())).Returns(Task.CompletedTask);
             var controller = new BrokersController(mockBrokerService.Object, NullLogger<BrokersController>.Instance);
 
             // Act
@@ -180,12 +180,13 @@ namespace InvestmentTracking.Api.Tests
         public async Task UpdateBroker_ReturnsBadRequest_WithInvalidId()
         {
             // Arrange
-            var invalidBrokerId = Guid.Empty;
-            var controller = new BrokersController(Mock.Of<IBrokerService>(), NullLogger<BrokersController>.Instance);
-            var broker = new BrokerDto { Id = Guid.NewGuid(), Name = "Test Broker" };
+            var mockBrokerService = new Mock<IBrokerService>();
+            mockBrokerService.Setup(service => service.UpdateBrokerAsync(It.IsAny<Guid>(),It.IsAny<BrokerUpdateDto>())).Throws<KeyNotFoundException>();
+            var controller = new BrokersController(mockBrokerService.Object, NullLogger<BrokersController>.Instance);
+            var broker = new BrokerUpdateDto { Name = "Test Broker" };
 
             // Act
-            var result = await controller.UpdateBroker(invalidBrokerId, broker);
+            var result = await controller.UpdateBroker(Guid.Empty, broker);
 
             // Assert
             Assert.IsType<BadRequestResult>(result);

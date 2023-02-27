@@ -10,6 +10,8 @@ public class MappingProfile : Profile
     {
         // Map from DTOs to entities
         CreateMap<BrokerDto, Broker>();
+        CreateMap<BrokerUpdateDto, Broker>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore());
         CreateMap<AccountDto, Account>()
             .ForMember(dest => dest.Balance, opt => opt.Ignore())
             .ForMember(dest => dest.Broker, opt => opt.Ignore());

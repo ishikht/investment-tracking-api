@@ -72,14 +72,11 @@ public class BrokersController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(BrokerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateBroker(Guid id, [FromBody] BrokerDto broker)
+    public async Task<IActionResult> UpdateBroker(Guid id, [FromBody] BrokerUpdateDto broker)
     {
-        if (id != broker.Id)
-            return BadRequest();
-
         try
         {
-            await _brokerService.UpdateBrokerAsync(broker);
+            await _brokerService.UpdateBrokerAsync(id, broker);
             return Ok();
         }
         catch (Exception ex)
