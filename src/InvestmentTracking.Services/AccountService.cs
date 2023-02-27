@@ -19,7 +19,7 @@ public class AccountService : IAccountService
         _mapper = mapper;
     }
 
-    public async Task<AccountDto> AddAccountAsync(AccountDto accountDto)
+    public async Task<AccountDto> AddAccountAsync(AccountCreateDto accountDto)
     {
         var account = _mapper.Map<Account>(accountDto);
         await _unitOfWork.AccountRepository.AddAsync(account);
@@ -57,13 +57,13 @@ public class AccountService : IAccountService
         return accountDto;
     }
 
-    public async Task UpdateAccountAsync(AccountDto accountDto)
+    public async Task UpdateAccountAsync(Guid id, AccountUpdateDto accountDto)
     {
-        var account = await _unitOfWork.AccountRepository.GetAsync(accountDto.Id);
+        var account = await _unitOfWork.AccountRepository.GetAsync(id);
         if (account == null)
         {
-            _logger.LogWarning("No account found in database with Id {Id} to update", accountDto.Id);
-            return;
+            _logger.LogWarning("No account found in database with Id {Id} to update", id);
+            throw new KeyNotFoundException($"No account found in database with Id {id} to update");
         }
 
         _mapper.Map(accountDto, account);

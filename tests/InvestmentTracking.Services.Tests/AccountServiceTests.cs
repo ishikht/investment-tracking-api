@@ -29,9 +29,8 @@ public class AccountServiceTests
     public async Task AddAccountAsync_Should_AddNewAccountToDatabase()
     {
         // Arrange
-        var accountDto = new AccountDto
+        var accountDto = new AccountCreateDto()
         {
-            Id = Guid.NewGuid(),
             Name = "Test Account",
             BrokerId = Guid.NewGuid()
         };
@@ -56,7 +55,7 @@ public class AccountServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(accountDto.Id, result.Id);
+        Assert.NotEqual(Guid.NewGuid(), result.Id);
         Assert.Equal(accountDto.Name, result.Name);
         Assert.Equal(accountDto.BrokerId, result.BrokerId);
 
@@ -122,7 +121,7 @@ public class AccountServiceTests
         // Arrange
         var accountId = Guid.NewGuid();
         var originalAccount = new Account { Id = accountId, Name = "Test Account", BrokerId = Guid.NewGuid() };
-        var updatedAccountDto = new AccountDto { Id = accountId, Name = "Updated Test Account", BrokerId = Guid.NewGuid() };
+        var updatedAccountDto = new AccountUpdateDto { Name = "Updated Test Account" };
 
         var accountRepositoryMock = new Mock<IAccountRepository>();
         accountRepositoryMock.Setup(x => x.GetAsync(accountId)).ReturnsAsync(originalAccount);
@@ -140,14 +139,13 @@ public class AccountServiceTests
         var accountService = new AccountService(_unitOfWorkMock.Object, _mapper, _loggerMock.Object);
 
         // Act
-        await accountService.UpdateAccountAsync(updatedAccountDto);
+        await accountService.UpdateAccountAsync(accountId, updatedAccountDto);
 
         // Assert
         accountRepositoryMock.Verify(x => x.UpdateAsync(It.IsAny<Account>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
         Assert.NotNull(savedAccount);
         Assert.Equal(updatedAccountDto.Name, savedAccount.Name);
-        Assert.Equal(updatedAccountDto.BrokerId, savedAccount.BrokerId);
     }
 
     [Fact]

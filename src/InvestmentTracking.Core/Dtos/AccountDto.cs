@@ -6,3 +6,14 @@ public class AccountDto
     public string Name { get; set; }
     public Guid BrokerId { get; set; }
 }
+
+public class AccountCreateDto
+{
+    public string Name { get; set; }
+    public Guid BrokerId { get; set; }
+}
+
+public class AccountUpdateDto
+{
+    public string Name { get; set; }
+}

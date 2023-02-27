@@ -1,5 +1,6 @@
 ﻿using InvestmentTracking.Api.Controllers;
 using InvestmentTracking.Core.Dtos;
+using InvestmentTracking.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +24,7 @@ public class AccountsControllerTests
     public async Task CreateAccount_ReturnsCreated_WithValidDto()
     {
         // Arrange
-        var accountDto = new AccountDto
+        var accountDto = new AccountCreateDto
         {
             Name = "Test Account",
             BrokerId = Guid.NewGuid()
@@ -58,7 +59,7 @@ public class AccountsControllerTests
         _accountsController.ModelState.AddModelError("Name", "Name is required");
 
         // Act
-        var result = await _accountsController.CreateAccount(new AccountDto());
+        var result = await _accountsController.CreateAccount(new AccountCreateDto());
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -68,7 +69,7 @@ public class AccountsControllerTests
     public async Task CreateAccount_ReturnsBadRequest_WhenServiceThrowsException()
     {
         // Arrange
-        var accountDto = new AccountDto
+        var accountDto = new AccountCreateDto
         {
             Name = "Test Account",
             BrokerId = Guid.NewGuid()
@@ -176,8 +177,8 @@ public class AccountsControllerTests
     {
         // Arrange
         var accountId = Guid.NewGuid();
-        var accountDto = new AccountDto { Id = accountId, Name = "Test Account", BrokerId = Guid.NewGuid() };
-        _mockAccountService.Setup(service => service.UpdateAccountAsync(accountDto)).Verifiable();
+        var accountDto = new AccountUpdateDto { Name = "Test Account"};
+        _mockAccountService.Setup(service => service.UpdateAccountAsync(accountId,accountDto)).Verifiable();
 
         // Act
         var result = await _accountsController.UpdateAccount(accountId, accountDto);
@@ -192,10 +193,13 @@ public class AccountsControllerTests
     {
         // Arrange
         var accountId = Guid.NewGuid();
-        var accountDto = new AccountDto { Id = Guid.NewGuid(), Name = "Test Account", BrokerId = Guid.NewGuid() };
+        var accountDto = new AccountUpdateDto { Name = "Test Account" };
+        var mockAccountService = new Mock<IAccountService>();
+        mockAccountService.Setup(service => service.UpdateAccountAsync(It.IsAny<Guid>(), It.IsAny<AccountUpdateDto>())).Throws<KeyNotFoundException>();
+        var controller = new AccountsController(mockAccountService.Object, NullLogger<AccountsController>.Instance);
 
         // Act
-        var result = await _accountsController.UpdateAccount(accountId, accountDto);
+        var result = await controller.UpdateAccount(accountId, accountDto);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);
@@ -205,18 +209,17 @@ public class AccountsControllerTests
     public async Task UpdateAccount_ReturnsBadRequest_WhenServiceThrowsException()
     {
         // Arrange
-        var accountDto = new AccountDto
+        var id = Guid.NewGuid();
+        var accountDto = new AccountUpdateDto
         {
-            Id = Guid.NewGuid(),
             Name = "Test Account",
-            BrokerId = Guid.NewGuid()
         };
 
-        _mockAccountService.Setup(service => service.UpdateAccountAsync(accountDto))
+        _mockAccountService.Setup(service => service.UpdateAccountAsync(id, accountDto))
             .Throws(new Exception());
 
         // Act
-        var result = await _accountsController.UpdateAccount(accountDto.Id, accountDto);
+        var result = await _accountsController.UpdateAccount(id, accountDto);
 
         // Assert
         Assert.IsType<BadRequestResult>(result);

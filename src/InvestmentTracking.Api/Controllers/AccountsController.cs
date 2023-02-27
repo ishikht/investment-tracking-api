@@ -19,7 +19,7 @@ public class AccountsController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(AccountDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateAccount([FromBody] AccountDto accountDto)
+    public async Task<IActionResult> CreateAccount([FromBody] AccountCreateDto accountDto)
     {
         try
         {
@@ -71,14 +71,11 @@ public class AccountsController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(AccountDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] AccountDto accountDto)
+    public async Task<IActionResult> UpdateAccount(Guid id, [FromBody] AccountUpdateDto accountDto)
     {
-        if (id != accountDto.Id)
-            return BadRequest();
-
         try
         {
-            await _accountService.UpdateAccountAsync(accountDto);
+            await _accountService.UpdateAccountAsync(id,accountDto);
             return Ok();
         }
         catch (Exception ex)

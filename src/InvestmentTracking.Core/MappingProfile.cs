@@ -17,6 +17,15 @@ public class MappingProfile : Profile
         CreateMap<AccountDto, Account>()
             .ForMember(dest => dest.Balance, opt => opt.Ignore())
             .ForMember(dest => dest.Broker, opt => opt.Ignore());
+        CreateMap<AccountCreateDto, Account>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Balance, opt => opt.Ignore())
+            .ForMember(dest => dest.Broker, opt => opt.Ignore());
+        CreateMap<AccountUpdateDto, Account>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Balance, opt => opt.Ignore())
+            .ForMember(dest => dest.BrokerId, opt => opt.Ignore())
+            .ForMember(dest => dest.Broker, opt => opt.Ignore());
         CreateMap<TransactionDto, Transaction>()
             .ForMember(dest => dest.Account, opt => opt.Ignore());
         CreateMap<StockTransactionDto, StockTransaction>()
