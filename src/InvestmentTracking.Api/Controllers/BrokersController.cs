@@ -20,7 +20,7 @@ public class BrokersController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(BrokerDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateBroker([FromBody] BrokerDto broker)
+    public async Task<IActionResult> CreateBroker([FromBody] BrokerCreateDto broker)
     {
         try
         {

@@ -21,7 +21,7 @@ public class BrokersControllerTests : IClassFixture<TestFixture>
     public async Task CreateBroker_ReturnsCreatedBroker()
     {
         // Arrange
-        var broker = new BrokerDto
+        var broker = new BrokerCreateDto
         {
             Name = "Test Broker"
         };
@@ -41,7 +41,7 @@ public class BrokersControllerTests : IClassFixture<TestFixture>
     public async Task CreateBroker_ReturnsBadRequestStatusCode()
     {
         // Arrange
-        var broker = new BrokerDto(); // Create an empty broker DTO to trigger validation errors
+        var broker = new BrokerCreateDto(); // Create an empty broker DTO to trigger validation errors
         var content = new StringContent(JsonConvert.SerializeObject(broker), Encoding.UTF8, "application/json");
 
         // Act

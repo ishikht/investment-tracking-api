@@ -20,15 +20,14 @@ public class BrokerService : IBrokerService
         _mapper = mapper;
     }
 
-    public async Task<BrokerDto> AddBrokerAsync(BrokerDto brokerDto)
+    public async Task<BrokerDto> AddBrokerAsync(BrokerCreateDto brokerDto)
     {
         var broker = _mapper.Map<Broker>(brokerDto);
         await _unitOfWork.BrokerRepository.AddAsync(broker);
         await _unitOfWork.SaveChangesAsync();
         _logger.LogInformation("Added broker {@Broker} to database", broker);
 
-        brokerDto = _mapper.Map<BrokerDto>(broker);
-        return brokerDto;
+        return _mapper.Map<BrokerDto>(broker);
     }
 
     public async IAsyncEnumerable<BrokerDto> GetAllBrokersAsync()

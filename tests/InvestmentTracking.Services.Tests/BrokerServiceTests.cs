@@ -29,9 +29,8 @@ public class BrokerServiceTests
     public async Task AddBrokerAsync_Should_AddNewBrokerToDatabase()
     {
         // Arrange
-        var brokerDto = new BrokerDto
+        var brokerDto = new BrokerCreateDto
         {
-            Id = Guid.NewGuid(),
             Name = "Test Broker"
         };
 
@@ -42,7 +41,7 @@ public class BrokerServiceTests
             .Returns((Broker b) =>
             {
                 capturedBroker = b;
-                capturedBroker.Id = b.Id;
+                capturedBroker.Id = Guid.NewGuid();
                 return Task.FromResult(capturedBroker);
             });
 
@@ -55,7 +54,7 @@ public class BrokerServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(brokerDto.Id, result.Id);
+        Assert.NotEqual( result.Id, Guid.Empty);
         Assert.Equal(brokerDto.Name, result.Name);
 
         _unitOfWorkMock.Verify(x => x.BrokerRepository.AddAsync(It.IsAny<Broker>()), Times.Once);

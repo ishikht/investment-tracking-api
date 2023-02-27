@@ -31,26 +31,30 @@ namespace InvestmentTracking.Api.Tests
         public async Task CreateBroker_ReturnsCreatedBroker()
         {
             // Arrange
-            var brokerDto = new BrokerDto
+            var brokerCreateDto = new BrokerCreateDto
             {
-                Id = Guid.NewGuid(),
                 Name = "Test Broker"
             };
+            var brokerDto = new BrokerDto()
+            {
+                Id = Guid.NewGuid(),
+                Name = brokerCreateDto.Name
+            };
 
-            _brokerServiceMock.Setup(x => x.AddBrokerAsync(It.IsAny<BrokerDto>()))
+            _brokerServiceMock.Setup(x => x.AddBrokerAsync(It.IsAny<BrokerCreateDto>()))
                 .ReturnsAsync(brokerDto);
 
             // Act
-            var result = await _controller.CreateBroker(brokerDto);
+            var result = await _controller.CreateBroker(brokerCreateDto);
 
             // Assert
             var createdAtActionResult = Assert.IsType<CreatedAtActionResult>(result);
             var returnValue = Assert.IsType<BrokerDto>(createdAtActionResult.Value);
-            Assert.Equal(brokerDto.Id, returnValue.Id);
+            Assert.NotEqual(returnValue.Id, Guid.Empty);
             Assert.Equal(brokerDto.Name, returnValue.Name);
             Assert.Equal(StatusCodes.Status201Created, createdAtActionResult.StatusCode);
 
-            _brokerServiceMock.Verify(x => x.AddBrokerAsync(It.IsAny<BrokerDto>()), Times.Once);
+            _brokerServiceMock.Verify(x => x.AddBrokerAsync(It.IsAny<BrokerCreateDto>()), Times.Once);
         }
 
         [Fact]
@@ -59,9 +63,9 @@ namespace InvestmentTracking.Api.Tests
             // Arrange
             var brokerServiceMock = new Mock<IBrokerService>();
             var loggerMock = new Mock<ILogger<BrokersController>>();
-            brokerServiceMock.Setup(x => x.AddBrokerAsync(It.IsAny<BrokerDto>())).ThrowsAsync(new Exception());
+            brokerServiceMock.Setup(x => x.AddBrokerAsync(It.IsAny<BrokerCreateDto>())).ThrowsAsync(new Exception());
             var controller = new BrokersController(brokerServiceMock.Object, loggerMock.Object);
-            var brokerDto = new BrokerDto { Id = Guid.NewGuid(), Name = "Test Broker" };
+            var brokerDto = new BrokerCreateDto {  Name = "Test Broker" };
 
             // Act
             var result = await controller.CreateBroker(brokerDto);

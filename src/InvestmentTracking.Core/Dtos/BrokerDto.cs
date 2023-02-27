@@ -10,3 +10,8 @@ public class BrokerUpdateDto
 {
     public string Name { get; set; }
 }
+
+public class BrokerCreateDto
+{
+    public string Name { get; set; }
+}
