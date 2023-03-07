@@ -6,6 +6,7 @@ namespace InvestmentTracking.Api.IntegrationTests
 {
     public class TestFixture : IDisposable
     {
+        private static bool _isCreated = false;
         private readonly string _dockerComposeFilePath;
         private readonly int _dockerComposeStartupTimeoutSeconds;
         private ICompositeService _dockerComposeService;
@@ -84,5 +85,14 @@ namespace InvestmentTracking.Api.IntegrationTests
 
             throw new Exception("Docker Compose configuration failed to start.");
         }
+    }
+
+
+    [CollectionDefinition("Tests collection")]
+    public class TestsCollection : ICollectionFixture<TestFixture>
+    {
+        // This class has no code, and is never created. Its purpose is simply
+        // to be the place to apply [CollectionDefinition] and all the
+        // ICollectionFixture<> interfaces.
     }
 }

@@ -6,7 +6,8 @@ using Newtonsoft.Json;
 namespace InvestmentTracking.Api.IntegrationTests;
 
 [Trait("TestCategory", "Integration")]
-public class BrokersControllerTests : IClassFixture<TestFixture>
+[Collection("Tests collection")]
+public class BrokersControllerTests 
 {
     private readonly HttpClient _client;
     private readonly TestFixture _fixture;
