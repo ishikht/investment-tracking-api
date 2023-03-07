@@ -78,7 +78,7 @@ public class AccountService : IAccountService
         if (account == null)
         {
             _logger.LogWarning("No account found in database with Id {Id} to delete", id);
-            return;
+            throw new KeyNotFoundException($"No account found in database with Id {id} to delete");
         }
 
         await _unitOfWork.AccountRepository.DeleteAsync(account);

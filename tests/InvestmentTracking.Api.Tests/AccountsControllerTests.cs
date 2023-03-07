@@ -246,7 +246,7 @@ public class AccountsControllerTests
     {
         // Arrange
         var invalidAccountId = Guid.NewGuid();
-        _mockAccountService.Setup(service => service.DeleteAccountAsync(invalidAccountId)).ThrowsAsync(new Exception());
+        _mockAccountService.Setup(service => service.DeleteAccountAsync(invalidAccountId)).ThrowsAsync(new KeyNotFoundException());
 
         // Act
         var result = await _accountsController.DeleteAccount(invalidAccountId);

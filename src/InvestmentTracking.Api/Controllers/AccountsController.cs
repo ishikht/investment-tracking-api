@@ -95,10 +95,14 @@ public class AccountsController : ControllerBase
             await _accountService.DeleteAccountAsync(id);
             return NoContent();
         }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound();
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting account with Id {Id}", id);
-            return NotFound();
+            return BadRequest();
         }
     }
 

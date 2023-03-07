@@ -96,10 +96,14 @@ public class BrokersController : ControllerBase
             await _brokerService.DeleteBrokerAsync(id);
             return NoContent();
         }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound();
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting broker with Id {Id}", id);
-            return NotFound();
+            return BadRequest();
         }
     }
 }

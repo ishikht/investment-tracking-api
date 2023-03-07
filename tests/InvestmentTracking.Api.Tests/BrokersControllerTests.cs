@@ -234,7 +234,7 @@ namespace InvestmentTracking.Api.Tests
             // Arrange
             var brokerId = Guid.NewGuid();
             var mockBrokerService = new Mock<IBrokerService>();
-            mockBrokerService.Setup(service => service.DeleteBrokerAsync(brokerId)).Throws(new Exception());
+            mockBrokerService.Setup(service => service.DeleteBrokerAsync(brokerId)).Throws(new KeyNotFoundException());
             var controller = new BrokersController(mockBrokerService.Object, NullLogger<BrokersController>.Instance);
 
             // Act
